@@ -58,12 +58,9 @@ jobs:
           echo "$resp" | jq . >&2 || true
           exit 1
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: https://yamenxy.github.io/tree/
-    steps:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
+
+  # Deploy in the same job as the build to avoid run_id / artifact exchange timing
+  # issues that can occur when stepping across jobs. The upload + deploy will
+  # now run sequentially in the `build` job and use the uploaded artifact.
