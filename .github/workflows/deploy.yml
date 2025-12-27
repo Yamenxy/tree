@@ -1,13 +1,15 @@
 name: Legacy deploy (disabled)
 
-# This legacy workflow used peaceiris/actions-gh-pages and was causing
-# permission and deprecated-artifact errors when triggered on push.
-# It's been disabled to avoid duplicate runs. Use `deploy-pages.yml` instead.
-
+# This legacy workflow is intentionally kept as a no-op so the file is
+# syntactically valid for GitHub Actions but will never run.
 on:
-  workflow_dispatch:
-    # Intentionally empty to keep this legacy workflow disabled.
-    # Use `deploy-pages.yml` (official) for GitHub Pages deployments.
+  workflow_dispatch: {}
 
-# jobs intentionally omitted to keep this legacy workflow disabled.
-jobs: {}
+jobs:
+  noop:
+    name: Disabled no-op job
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - name: No-op
+        run: echo "This workflow is intentionally disabled."
