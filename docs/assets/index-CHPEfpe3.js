@@ -1,1 +1,0 @@
-{COPY_OF_JS}
