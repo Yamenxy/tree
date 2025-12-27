@@ -5,4 +5,9 @@ name: Legacy deploy (disabled)
 # It's been disabled to avoid duplicate runs. Use `deploy-pages.yml` instead.
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    # Intentionally empty to keep this legacy workflow disabled.
+    # Use `deploy-pages.yml` (official) for GitHub Pages deployments.
+
+# jobs intentionally omitted to keep this legacy workflow disabled.
+jobs: {}
