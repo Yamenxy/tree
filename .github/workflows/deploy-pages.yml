@@ -1,0 +1,66 @@
+name: Build and Deploy to GitHub Pages (official)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Verify uploaded Pages artifact
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Checking for uploaded artifacts for run $RUN_ID..."
+          for i in {1..12}; do
+            resp=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/artifacts")
+            count=$(echo "$resp" | jq '.artifacts | length')
+            if [ "$count" -gt 0 ]; then
+              echo "Found $count artifact(s)."
+              echo "$resp" | jq '.artifacts[] | {id: .id, name: .name, size_in_bytes: .size_in_bytes}'
+              exit 0
+            fi
+            echo "Artifact not found yet (attempt $i), waiting..."
+            sleep 5
+          done
+          echo "Timed out waiting for Pages artifact. Dumping response:" >&2
+          echo "$resp" | jq . >&2 || true
+          exit 1
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
+
+  # Deploy in the same job as the build to avoid run_id / artifact exchange timing
+  # issues that can occur when stepping across jobs. The upload + deploy will
+  # now run sequentially in the `build` job and use the uploaded artifact.

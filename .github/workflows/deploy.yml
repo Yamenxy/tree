@@ -1,0 +1,15 @@
+name: Legacy deploy (disabled)
+
+# This legacy workflow is intentionally kept as a no-op so the file is
+# syntactically valid for GitHub Actions but will never run.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  noop:
+    name: Disabled no-op job
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - name: No-op
+        run: echo "This workflow is intentionally disabled."
